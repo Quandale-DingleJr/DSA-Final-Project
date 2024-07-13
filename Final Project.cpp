@@ -10,9 +10,11 @@ class Book{
 	private://data
 		vector<int> bookID;
 		vector<int> nofCopies;
+		vector<int> initialCopies;
 		vector<string> bookTitle;
 		vector<string> author;
 		vector<string> genre;
+		
 	
 	public:
 			int id = bookID.size() + 1;
@@ -48,7 +50,9 @@ class Book{
 			cout << "No. Of Copies:\t";
 			cin >> copies;
 			nofCopies.push_back(copies);
+			initialCopies.push_back(copies);
 			cin.ignore();
+			cout << endl;
 		}
 		//function to rent a book
 		void rentBook(){
@@ -57,7 +61,7 @@ class Book{
 			
 			system ("cls");
 			do{
-				cout << "Rent a Book\n";
+				cout << "Renting a Book\n";
 				cout << "Book ID:\t\t";
 				cin >> id;
 				
@@ -76,10 +80,11 @@ class Book{
 							found = true;
 							break;
 						}
+						if(!found){
+						cout << "Book not Found...";
 					}
 				}
-				if(!found){
-					cout << "Book not Found...";
+				
 				}
 				cout << "Rent another book?(Y/N): ";
 				cin >> choice;
@@ -89,62 +94,109 @@ class Book{
 		}
 		void returnBook() {
             int id;
+            
+            system ("cls");
+            cout << "Returning a Book\n";
             cout << "Book ID:\t";
             cin >> id;
 
             bool found = false;
-            system ("cls");
 
             for (size_t i = 0; i < bookID.size(); i++) {
                 if (id == bookID[i]) {
                     found = true;
-                    if (nofCopies[i] > 0) {
+                    if (nofCopies[i] < initialCopies[i]){
                         nofCopies[i]++;
-                        cout << "Book returned successfully.\n";
-                    } else {
-                        cout << "All copies of this book are already returned.\n";
+                        cout << "Book returned successfully.\n\n";
+                    } 
+					else {
+                        cout << "All copies of this book are already returned.\n\n";
                     }
                     break;
                 }
             }
-
             if (!found) {
-                cout << "Book ID not found.\n";
+                cout << "Book ID not found.\n\n";
             }
         }
    	 	void showBookDetails() {
-   	 		system ("cls");
             int id;
-            cout << "Book ID:\t";
-            cin >> id;
-
-            bool found = false;
-
-            for (size_t i = 0; i < bookID.size(); i++) {
-                if (id == bookID[i]) {
-                    cout << "Book ID:\t" << bookID[i] << endl;
-                    cout << "Book Title:\t" << bookTitle[i] << endl;
-                    cout << "Author:\t" << author[i] << endl;
-                    cout << "Genre:\t" << genre[i] << endl;
-                    cout << "Number of Copies:\t" << nofCopies[i] << endl;
-                    found = true;
-                    break;
-                }
-            }
-
-            if (!found) {
-                cout << "Book not found." << endl;
-            }
-        }
+        	bool found = false;
+        	
+        	system ("cls");
+        	cout << "Showing Book Details\n";
+            if(bookID.size() == 0){
+            	cout << "Library is Empty.\n\n";
+			}
+			else{
+				cout << "Book ID:\t";
+            	cin >> id;
+            	
+            	for (size_t i = 0; i < bookID.size(); i++) {
+                	if (id == bookID[i]) {
+                		system ("cls");
+                		cout << "Showing Book Details\n";
+                    	cout << "Book ID:\t\t" << bookID[i] << endl;
+                    	cout << "Book Title:\t\t" << bookTitle[i] << endl;
+                    	cout << "Author:\t\t\t" << author[i] << endl;
+                    	cout << "Genre:\t\t\t" << genre[i] << endl;
+                    	cout << "Number of Copies:\t" << nofCopies[i] << endl << endl;
+                    	found = true;
+                    	break;
+                	}
+            	}
+            	if (!found) {
+                	cout << "Book not found.\n\n" << endl;
+            	}
+			} 
+    	}
         void displayBooks() {
         	system ("cls");
-            cout << "\nBooks in the library:\n";
+            cout << "Books in the library:\n";
             cout << "ID\tTitle\tAuthor\tGenre\tCopies\n";
 
             for (size_t i = 0; i < bookID.size(); ++i) {
                 cout << bookID[i] << "\t" << bookTitle[i] << "\t" << author[i] << "\t" << genre[i] << "\t" << nofCopies[i] << "\n";
             }
+            cout << endl;
         }
+        void checkAvailability(){
+        	int id;
+        	bool found = false;
+        	
+        	system ("cls");
+        	cout << "Showing Book Availability\n";
+            if(bookID.size() == 0){
+            	cout << "Library is Empty.\n\n";
+			}
+			else{
+				cout << "Book ID:\t";
+            	cin >> id;
+            	
+            	for (size_t i = 0; i < bookID.size(); i++) {
+                	if (id == bookID[i]) {
+                		system ("cls");
+                		cout << "Showing Book Details\n";
+                    	cout << "Book ID:\t\t" << bookID[i] << endl;
+                    	cout << "Book Title:\t\t" << bookTitle[i] << endl;
+                    	cout << "Author:\t\t\t" << author[i] << endl;
+                    	cout << "Genre:\t\t\t" << genre[i] << endl;
+                    	cout << "Number of Copies:\t" << nofCopies[i] << endl;
+                    	if(nofCopies[i] = 0){
+                    		cout << "Availability:\t\t" << "Available\n\n";
+						}
+						else{
+							cout << "Availability:\t\t" << "Unavailable\n\n";
+						}
+                    	found = true;
+                    	break;
+                	}
+            	}
+            	if (!found) {
+                	cout << "Book not found.\n\n" << endl;
+            	}
+			} 
+		}
    	 	void menu(){
    	 		cout  << "[1] New Book\n";
    	 		cout  << "[2] Rent a Book\n";
@@ -163,10 +215,11 @@ class Book{
 		
 		int main(){
 			Book library;
+			
 			int choice;
-			char answer;
+			char answer = 'N';
+			
 			do{
-				system ("cls");
 				library.menu();
 				cin >> choice;
 				
@@ -192,18 +245,18 @@ class Book{
 						break;
 					
 					case 6:
-						
-						
+						library.checkAvailability();
+						break;
 						
 					case 8:
 						cout << "Exit Program? (Y/N): ";
 						cin >> answer;
-						return 0;
+						break;
 						
 					default:
 						cout << "Invalid Input...";
 				}
-			}while(answer != 'N' || answer != 'n');
+			}while(answer != 'Y' || answer != 'y');
 		}
 		
 		
