@@ -182,7 +182,7 @@ class Book{
                     	cout << "Author:\t\t\t" << author[i] << endl;
                     	cout << "Genre:\t\t\t" << genre[i] << endl;
                     	cout << "Number of Copies:\t" << nofCopies[i] << endl;
-                    	if(nofCopies[i] = 0){
+                    	if(nofCopies[i] == 0){
                     		cout << "Availability:\t\t" << "Available\n\n";
 						}
 						else{
@@ -197,6 +197,55 @@ class Book{
             	}
 			} 
 		}
+		void saveToFile(const string& filename) {
+            ofstream outFile(filename);
+            if (outFile.is_open()) {
+                for (size_t i = 0; i < bookID.size(); ++i) {
+                    outFile << bookID[i] << "\n"
+                            << bookTitle[i] << "\n"
+                            << author[i] << "\n"
+                            << genre[i] << "\n"
+                            << nofCopies[i] << "\n";
+                }
+                outFile.close();
+            } else {
+                cout << "Unable to open file for writing." << endl;
+            }
+        }
+        // Function to load data from file
+        void loadFromFile(const string& filename) {
+            ifstream inFile(filename);
+            if (inFile.is_open()) {
+                bookID.clear();
+                bookTitle.clear();
+                author.clear();
+                genre.clear();
+                nofCopies.clear();
+                initialCopies.clear();
+                
+                int id, copies;
+                string title, auth, genr;
+                
+                while (inFile >> id) {
+                    inFile.ignore(); // Ignore newline after id
+                    getline(inFile, title);
+                    getline(inFile, auth);
+                    getline(inFile, genr);
+                    inFile >> copies;
+                    inFile.ignore(); // Ignore newline after copies
+                    
+                    bookID.push_back(id);
+                    bookTitle.push_back(title);
+                    author.push_back(auth);
+                    genre.push_back(genr);
+                    nofCopies.push_back(copies);
+                    initialCopies.push_back(copies);
+                }
+                inFile.close();
+            } else {
+                cout << "Unable to open file for reading." << endl;
+            }
+        }
    	 	void menu(){
    	 		cout  << "[1] New Book\n";
    	 		cout  << "[2] Rent a Book\n";
@@ -216,6 +265,7 @@ class Book{
 		int main(){
 			Book library;
 			
+			library.loadFromFile("library.txt");
 			int choice;
 			char answer = 'N';
 			
@@ -251,12 +301,16 @@ class Book{
 					case 8:
 						cout << "Exit Program? (Y/N): ";
 						cin >> answer;
+						cout << endl;
 						break;
 						
 					default:
 						cout << "Invalid Input...";
 				}
-			}while(answer != 'Y' || answer != 'y');
+			}while(answer != 'Y' && answer != 'y');
+			
+			library.saveToFile("library.txt");
+			return 0;
 		}
 		
 		
