@@ -2,7 +2,6 @@
 #include <string>
 #include <vector>
 #include <fstream>
-#include <stdlib.h>
 
 using namespace std;
 
@@ -10,20 +9,25 @@ class Book{
 	private://data
 		vector<int> bookID;
 		vector<int> nofCopies;
-		vector<int> initialCopies;
+		vector<int> initialCopies; //vector to monitor the initial number of copies of a book
 		vector<string> bookTitle;
 		vector<string> author;
 		vector<string> genre;
+		int id;
 		
-	
 	public:
-			int id = bookID.size() + 1;
-			int copies;
-			string title, auth, genr;
-		
+		//constructor
+		Book(){
+			loadFromFile("library.txt");
+			if(bookID.empty()) {
+				id = 0;
+			}
+			else {
+				id = bookID.back();
+			}
+		}
 		//function to add a book
 		void insertBook(){
-			int id = bookID.size() + 1;
 			int copies;
 			string title, auth, genr;
 			
@@ -31,7 +35,7 @@ class Book{
 			system("cls");
 			cout << "Adding a Book\n";
 			
-			cout << "Book ID:\t" << id;
+			cout << "Book ID:\t" << ++id;
 			bookID.push_back(id);
 			cin.ignore();
 			
@@ -49,6 +53,13 @@ class Book{
 			
 			cout << "No. Of Copies:\t";
 			cin >> copies;
+			if(copies <= 0){		//makes sure that the number of copies is not less than or equal to zero
+				while(copies <= 0){
+					cout << "Number of Copies must be Greater than 0.\n";
+					cout << "No. Of Copies:\t";
+					cin >> copies;
+				}
+			}
 			nofCopies.push_back(copies);
 			initialCopies.push_back(copies);
 			cin.ignore();
@@ -56,84 +67,93 @@ class Book{
 		}
 		//function to rent a book
 		void rentBook(){
-			int id;
 			char choice;
+			bool found = false;
 			
 			system ("cls");
-			do{
-				cout << "Renting a Book\n";
-				cout << "Book ID:\t\t";
+			cout << "Renting a Book\n";
+			//checks if the library is empty
+			if(bookID.empty()){
+				cout << "Library is Empty.\n\n";
+			}
+			else{
+				//loop to allow multiple instances of renting
+				do{
+				cout << "Book ID:\t\t";		//prompt the user to input a book ID
 				cin >> id;
 				
-				bool found = false;
-				
-				for(size_t i = 0; i < bookID.size(); i++){
-					if(id == bookID[i]){
-						if(nofCopies[i] <= 0){
+				for(int i = 0; i < bookID.size(); i++){
+					if(id == bookID[i]){		//loops and finds the matching bookID
+						found = true;		//a mark to tell that the bookID has been found
+						if(nofCopies[i] == 0){		//checks if the number of copies of the book is zero
 							cout << "No more Copies Remaining of Book: " << bookTitle[i] << endl;
-							break;
 						}
 						else{
 							cout << "Book Title:\t\t" << bookTitle[i] << endl;
 							cout << "Copies Remaining:\t" << --nofCopies[i] << endl;
-						
-							found = true;
-							break;
 						}
-						if(!found){
-						cout << "Book not Found...";
+						break;		//to break out of the loop once the id matches with bookID
 					}
 				}
-				
+				if(!found){		//if the inputed id did not match bookID
+					cout << "Book not Found...\n";
 				}
 				cout << "Rent another book?(Y/N): ";
 				cin >> choice;
 				cout << endl;
-				
-			}while(choice == 'Y' || choice == 'y');
+				}while(choice == 'Y' || choice == 'y');
+			}
 		}
+		//function to return a book
+		//////////
+		////////// DI PA TAPOS RETURNBOOK
+		//////////
 		void returnBook() {
-            int id;
-            
+			bool found = false;
+			
             system ("cls");
             cout << "Returning a Book\n";
-            cout << "Book ID:\t";
-            cin >> id;
+            if(bookID.empty()){
+            	cout << "Library is Empty.\n\n";
+			}
+			else{
+            	cout << "Book ID:\t";
+            	cin >> id;
 
-            bool found = false;
-
-            for (size_t i = 0; i < bookID.size(); i++) {
-                if (id == bookID[i]) {
-                    found = true;
-                    if (nofCopies[i] < initialCopies[i]){
-                        nofCopies[i]++;
-                        cout << "Book returned successfully.\n\n";
-                    } 
-					else {
-                        cout << "All copies of this book are already returned.\n\n";
-                    }
-                    break;
-                }
-            }
-            if (!found) {
-                cout << "Book ID not found.\n\n";
-            }
+            	for(int i = 0; i < bookID.size(); i++){
+                	if(id == bookID[i]){
+                    	found = true;
+                    	if(nofCopies[i] < initialCopies[i]){		//if the current number of copies is less than the initial number of copies 
+                        	nofCopies[i]++;
+                        	cout << "Book returned successfully.\n\n";
+                    	} 
+						else{		//if the current number of copies is equal to initial number of copies
+                        	cout << "All copies of this book are already returned.\n\n";
+                    	}
+                    	break;
+                	}
+           		}
+            	if (!found) {
+                	cout << "Book ID not found.\n\n";
+            	}
+			} 
         }
-   	 	void showBookDetails() {
-            int id;
-        	bool found = false;
-        	
+        //function to show the selected book its details
+   	 	void showBookDetails(){
+   	 		bool found = false;
+   	 		
         	system ("cls");
         	cout << "Showing Book Details\n";
-            if(bookID.size() == 0){
+            if(bookID.empty()){
             	cout << "Library is Empty.\n\n";
 			}
 			else{
 				cout << "Book ID:\t";
             	cin >> id;
             	
-            	for (size_t i = 0; i < bookID.size(); i++) {
-                	if (id == bookID[i]) {
+            	for(int i = 0; i < bookID.size(); i++){
+                	if (id == bookID[i]){
+                		found = true;
                 		system ("cls");
                 		cout << "Showing Book Details\n";
                     	cout << "Book ID:\t\t" << bookID[i] << endl;
@@ -141,40 +161,46 @@ class Book{
                     	cout << "Author:\t\t\t" << author[i] << endl;
                     	cout << "Genre:\t\t\t" << genre[i] << endl;
                     	cout << "Number of Copies:\t" << nofCopies[i] << endl << endl;
-                    	found = true;
                     	break;
                 	}
             	}
-            	if (!found) {
+            	if(!found){
                 	cout << "Book not found.\n\n" << endl;
             	}
 			} 
     	}
-        void displayBooks() {
+    	//function to display all books
+        void displayBooks(){
         	system ("cls");
-            cout << "Books in the library:\n";
-            cout << "ID\tTitle\tAuthor\tGenre\tCopies\n";
-
-            for (size_t i = 0; i < bookID.size(); ++i) {
-                cout << bookID[i] << "\t" << bookTitle[i] << "\t" << author[i] << "\t" << genre[i] << "\t" << nofCopies[i] << "\n";
+        	cout << "Books in the library:\n";
+        	
+        	if(bookID.empty()){
+        		cout << "Library is Empty.\n\n";
+			}
+			else{
+				cout << "ID\tTitle\t\t\tAuthor\t\tGenre\t\tCopies\n";
+            	for(int i = 0; i < bookID.size(); i++){
+                	cout << bookID[i] << "\t" << bookTitle[i] << "\t\t" << author[i] << "\t" << genre[i] << "\t\t" << nofCopies[i] << endl;
             }
             cout << endl;
+			}
         }
+        //function to check a book's availability
         void checkAvailability(){
-        	int id;
         	bool found = false;
         	
         	system ("cls");
         	cout << "Showing Book Availability\n";
-            if(bookID.size() == 0){
+            if(bookID.empty()){
             	cout << "Library is Empty.\n\n";
 			}
 			else{
 				cout << "Book ID:\t";
             	cin >> id;
             	
-            	for (size_t i = 0; i < bookID.size(); i++) {
-                	if (id == bookID[i]) {
+            	for(int i = 0; i < bookID.size(); i++){
+                	if(id == bookID[i]){
+                		found = true;
                 		system ("cls");
                 		cout << "Showing Book Details\n";
                     	cout << "Book ID:\t\t" << bookID[i] << endl;
@@ -182,25 +208,26 @@ class Book{
                     	cout << "Author:\t\t\t" << author[i] << endl;
                     	cout << "Genre:\t\t\t" << genre[i] << endl;
                     	cout << "Number of Copies:\t" << nofCopies[i] << endl;
+                    	cout << "Availability:\t\t";
                     	if(nofCopies[i] == 0){
-                    		cout << "Availability:\t\t" << "Available\n\n";
+                    		cout << "Unavailable\n\n";
 						}
 						else{
-							cout << "Availability:\t\t" << "Unavailable\n\n";
+							cout << "Available\n\n";
 						}
-                    	found = true;
                     	break;
                 	}
             	}
-            	if (!found) {
+            	if(!found){
                 	cout << "Book not found.\n\n" << endl;
             	}
 			} 
 		}
-		void saveToFile(const string& filename) {
+		//function to save data to a text file
+		void saveToFile(const string& filename){
             ofstream outFile(filename);
-            if (outFile.is_open()) {
-                for (size_t i = 0; i < bookID.size(); ++i) {
+            if(outFile.is_open()){
+                for (int i = 0; i < bookID.size(); i++) {
                     outFile << bookID[i] << "\n"
                             << bookTitle[i] << "\n"
                             << author[i] << "\n"
@@ -208,12 +235,13 @@ class Book{
                             << nofCopies[i] << "\n";
                 }
                 outFile.close();
-            } else {
+            }
+			else{
                 cout << "Unable to open file for writing." << endl;
             }
         }
         // Function to load data from file
-        void loadFromFile(const string& filename) {
+        void loadFromFile(const string& filename){
             ifstream inFile(filename);
             if (inFile.is_open()) {
                 bookID.clear();
@@ -226,7 +254,7 @@ class Book{
                 int id, copies;
                 string title, auth, genr;
                 
-                while (inFile >> id) {
+                while(inFile >> id){
                     inFile.ignore(); // Ignore newline after id
                     getline(inFile, title);
                     getline(inFile, auth);
@@ -242,7 +270,8 @@ class Book{
                     initialCopies.push_back(copies);
                 }
                 inFile.close();
-            } else {
+            }
+			else{
                 cout << "Unable to open file for reading." << endl;
             }
         }
@@ -261,7 +290,7 @@ class Book{
    	 		cout  << "Enter Your Choice: ";
 			}
 };
-		
+
 		int main(){
 			Book library;
 			
@@ -305,18 +334,12 @@ class Book{
 						break;
 						
 					default:
-						cout << "Invalid Input...";
+						cout << "Invalid Input...\n";
 				}
 			}while(answer != 'Y' && answer != 'y');
 			
 			library.saveToFile("library.txt");
+			cout << "Saving Data...\n";
+			cout << "Exiting Program...";
 			return 0;
 		}
-		
-		
-		
-		
-		
-		
-		
-		
