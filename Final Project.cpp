@@ -2,9 +2,221 @@
 #include <string>
 #include <vector>
 #include <fstream>
+#include <sstream>
 
 using namespace std;
 
+// Customer Parent ADT
+class Customer {
+private://data
+	vector<int> CustomerId;
+	vector<string> CustomerName;
+	vector<string> Address;
+	int id;
+
+public:
+	Customer(){
+			loadFromFile("customer.txt");
+			if(CustomerId.empty()){
+				id = 0;
+			}
+			else {
+				id = CustomerId.back();
+			}
+		}
+
+	void addNewCustomer() {
+		string name, addres;
+		
+		system ("cls");
+		cout << "Adding Customer\n";
+		
+		cout << "Customer ID:\t" << ++id;
+		CustomerId.push_back(id);
+		cin.ignore();
+		
+		cout << "\nName:\t\t";
+		getline(cin, name);
+		CustomerName.push_back(name);
+		
+		cout << "Address:\t";
+		getline(cin, addres);
+		Address.push_back(addres);
+		
+		cout << "\nCustomer added successfully." << endl;
+	}
+	
+	
+	void showCustomerDetails() {
+    	bool found = false;
+    	
+    	system ("cls");
+    	cout << "Showing Customer Details\n";
+        if(CustomerId.size() == 0){
+        	cout << "There is no Customer on the list.\n";
+        	cout << "Add a Customer First.\n\n";
+		}
+		else{
+			cout << "Customer ID:\t";
+        	cin >> id;
+        	
+        	for (int i = 0; i < CustomerId.size(); i++) {
+            	if (id == CustomerId[i]) {
+            		system ("cls");
+            		cout << "Showing Customer Details\n";
+                	cout << "Customer ID:\t" << CustomerId[i] << endl;
+                	cout << "Name:\t\t" << CustomerName[i] << endl;
+                	cout << "Address:\t" << Address[i] << endl << endl;
+                	found = true;
+                	break;
+            	}
+        	}
+        	if (!found) {
+            	cout << "Customer not found.\n\n" << endl;
+        	}
+		} 
+	}
+
+    void displayAllCustomers(){
+        	system ("cls");
+        	cout << "List of Customers:\n";
+        	
+        	if(CustomerId.empty()){
+        		cout << "List is Empty.\n\n";
+			}
+			else{
+			cout << "ID| Name | Address\n";
+			cout << "--------------------------------------------\n";
+				
+            	for(int i = 0; i < CustomerId.size(); i++){
+                	cout << CustomerId[i] << " | " << CustomerName[i] << " | " << Address[i] << "\n";
+            }
+            cout << endl;
+			}
+        }
+        
+    	void submenu(){
+			cout  << "[7] Customer Maintenance\n";
+   	 		cout  << "\t[1] Add New Customer\n";
+   	 		cout  << "\t[2] Show Customer Details\n";
+   	 		cout  << "\t[3] Display All Customers\n";
+   	 		cout  << "\t[4] List of Videos Rented by a Customer\n";
+   	 		cout  << "\t[5] Go Back to Main Menu\n";
+   	 		cout  << "Enter Your Choice: ";
+		}
+	
+	void saveToFile(const string& filename) {
+            ofstream outFile(filename);
+            if (outFile.is_open()) {
+                for (int i = 0; i < CustomerId.size(); ++i) {
+                    outFile << CustomerId[i] << "\n"
+                            << CustomerName[i] << "\n"
+                            << Address[i] << "\n"<< endl;
+                }
+                outFile.close();
+            } else {
+                cout << "Unable to open file for writing." << endl;
+            }
+        }
+        // Function to load data from file
+    void loadFromFile(const string& filename) {
+        ifstream inFile(filename);
+            if (inFile.is_open()) {
+            	CustomerId.clear();
+            	CustomerName.clear();
+            	Address.clear();
+            	
+                int id;
+                string name, addres;
+                
+                while (inFile >> id) {
+                    inFile.ignore(); // Ignore newline after id
+                    getline(inFile, name);
+                    getline(inFile, addres);
+                    
+                    CustomerId.push_back(id);
+                    CustomerName.push_back(name);
+                    Address.push_back(addres);
+                }
+                inFile.close();
+            } else {
+                cout << "Unable to open file for reading." << endl;
+            }
+    }
+};
+
+class CustomerRent: public Customer{
+	public:
+	vector<vector<int>> rentedbooks;
+
+    CustomerRent() {
+    	loadFromFile("rentedbooks.txt");
+        rentedbooks.resize(100);  // Adjust the size as needed
+    }
+
+    void rentBook(int cID, int bookID) {
+        if (cID < rentedbooks.size()) {
+            rentedbooks[cID].push_back(bookID);
+        }
+    }
+
+    void displayRentedBooks() {
+        int cID;
+        cout << "\nEnter Customer ID: ";
+        cin >> cID;
+
+        if (cID < rentedbooks.size()) {
+            cout << "Books rented:" << endl;
+            for (int bookID : rentedbooks[cID]) {
+                cout << bookID << ", ";
+            }
+            cout << endl << endl;
+        } else {
+            cout << "Customer ID not found." << endl;
+        }
+    }
+    //function to save data to a text file
+		void saveToFile(const string& filename) {
+        ofstream outFile(filename);
+        if (outFile.is_open()) {
+            for (int i = 0; i < rentedbooks.size(); ++i) {
+                if (!rentedbooks[i].empty()) {
+                    outFile << i; // save the customer ID
+                    for (int bookID : rentedbooks[i]) {
+                        outFile << " " << bookID;
+                    }
+                    outFile << endl;
+                }
+            }
+            outFile.close();
+        } else {
+            cout << "Unable to open file for writing." << endl;
+        }
+    }
+
+    void loadFromFile(const string& filename) {
+        ifstream inFile(filename);
+        if (inFile.is_open()) {
+            rentedbooks.clear();
+            rentedbooks.resize(100); // Reset the size as needed
+
+            int cID;
+            string line;
+            while (getline(inFile, line)) {
+                istringstream iss(line);
+                iss >> cID;
+                int bookID;
+                while (iss >> bookID) {
+                    rentedbooks[cID].push_back(bookID);
+                }
+            }
+            inFile.close();
+        } else {
+            cout << "Unable to open file for reading." << endl;
+        }
+    }
+};
+//class for books
 class Book{
 	private://data
 		vector<int> bookID;
@@ -66,19 +278,23 @@ class Book{
 			cout << endl;
 		}
 		//function to rent a book
-		void rentBook(){
+		void rentBook(Customer& customer, CustomerRent& rent){
 			char choice;
 			bool found = false;
+			int customerID;
 			
-			cout << "\nRenting a Book\n";
+			system ("cls");
+			cout << "Renting a Book\n";
 			//checks if the library is empty
+			cout <<"Enter Customer ID: ";
+			cin>>customerID;
 			if(bookID.empty()){
 				cout << "Library is Empty.\n\n";
 			}
 			else{
 				//loop to allow multiple instances of renting
 				do{
-				cout << "Book ID:\t\t";		//prompt the user to input a book ID
+				cout << "Book ID:\t";		//prompt the user to input a book ID
 				cin >> id;
 				
 				for(int i = 0; i < bookID.size(); i++){
@@ -90,6 +306,7 @@ class Book{
 						else{
 							cout << "Book Title:\t\t" << bookTitle[i] << endl;
 							cout << "Copies Remaining:\t" << --nofCopies[i] << endl;
+							rent.rentBook(customerID, id);
 						}
 						break;		//to break out of the loop once the id matches with bookID
 					}
@@ -104,39 +321,43 @@ class Book{
 			}
 		}
 		//function to return a book
-		//////////
-		////////// DI PA TAPOS RETURNBOOK
-		//////////
-		void returnBook() {
-			bool found = false;
+		void returnBook(Customer& customer, CustomerRent& rent) {
+			
+			int cID,bID;
 			
             system ("cls");
             cout << "Returning a Book\n";
+			cout<<"Enter Customer ID: ";
+			cin>>cID;
             if(bookID.empty()){
-            	cout << "Library is Empty.\n\n";
+            	cout << "Library is Empty.\n";
 			}
 			else{
-            	cout << "Book ID:\t";
-            	cin >> id;
-
-            	for(int i = 0; i < bookID.size(); i++){
-                	if(id == bookID[i]){
+			while (!rent.rentedbooks[cID].empty())
+			{
+				bID=rent.rentedbooks[cID].back();
+				rent.rentedbooks[cID].pop_back();
+				bool found = false;
+				for(int i = 0; i < bookID.size(); i++){
+                	if(bID == bookID[i]){
                     	found = true;
                     	if(nofCopies[i] < initialCopies[i]){		//if the current number of copies is less than the initial number of copies 
                         	nofCopies[i]++;
                         	cout << "Book returned successfully.\n\n";
                     	} 
 						else{		//if the current number of copies is equal to initial number of copies
-                        	cout << "All copies of this book are already returned.\n\n";
+                        	cout << "All copies of this book are already returned.\n";
                     	}
                     	break;
                 	}
            		}
             	if (!found) {
-                	cout << "Book ID not found.\n\n";
+                	cout << "Book ID not found.\n";
             	}
-			} 
-        }
+        	}
+			}
+			cout << endl;
+		}
         //function to show the selected book its details
    	 	void showBookDetails(){
    	 		bool found = false;
@@ -291,150 +512,14 @@ class Book{
 			}
 };
 
-// Customer Parent ADT
-class Customer {
-private://data
-	vector<int> CustomerId;
-	vector<string> CustomerName;
-	vector<string> Address;
-	int id;
-
-public:
-	Customer(){
-			loadFromFile("customer.txt");
-			if(CustomerId.empty()){
-				id = 0;
-			}
-			else {
-				id = CustomerId.back();
-			}
-		}
-
-	void addNewCustomer() {
-		string name, addres;
-		
-		system ("cls");
-		cout << "Adding Customer\n";
-		
-		cout << "Customer ID:\t" << ++id;
-		CustomerId.push_back(id);
-		cin.ignore();
-		
-		cout << "\nName:\t\t";
-		getline(cin, name);
-		CustomerName.push_back(name);
-		
-		cout << "Address:\t";
-		getline(cin, addres);
-		Address.push_back(addres);
-		
-		cout << "\nCustomer added successfully." << endl;
-	}
-	
-	
-	void showCustomerDetails(Book& library) { //allows an object of class book to be passed in this function
-    	bool found = false;
-    	
-    	system ("cls");
-    	cout << "Showing Customer Details\n";
-        if(CustomerId.size() == 0){
-        	cout << "There is no Customer on the list.\n";
-        	cout << "Add a Customer First.\n\n";
-		}
-		else{
-			cout << "Customer ID:\t";
-        	cin >> id;
-        	
-        	for (int i = 0; i < CustomerId.size(); i++) {
-            	if (id == CustomerId[i]) {
-            		system ("cls");
-            		cout << "Showing Customer Details\n";
-                	cout << "Customer ID:\t" << CustomerId[i] << endl;
-                	cout << "Name:\t\t" << CustomerName[i] << endl;
-                	cout << "Address:\t" << Address[i] << endl;
-                	found = true;
-                	break;
-            	}
-        	}
-        	if(found){
-        	library.rentBook();
-			}
-        	if (!found) {
-            	cout << "Customer not found.\n\n" << endl;
-        	}
-		} 
-	}
-
-    void displayAllCustomers(){
-        	system ("cls");
-        	cout << "List of Customers:\n";
-        	
-        	if(CustomerId.empty()){
-        		cout << "List is Empty.\n\n";
-			}
-			else{
-			cout << "ID| Name | Address\n";
-			cout << "--------------------------------------------\n";
-				
-            	for(int i = 0; i < CustomerId.size(); i++){
-                	cout << CustomerId[i] << " | " << CustomerName[i] << " | " << Address[i] << "\n";
-            }
-            cout << endl;
-			}
-        }
-        
-    	void submenu(){
-			cout  << "[7] Customer Maintenance\n";
-   	 		cout  << "\t[1] Add New Customer\n";
-   	 		cout  << "\t[2] Show Customer Details\n";
-   	 		cout  << "\t[3] Display All Customers\n";
-   	 		cout  << "\t[4] List of Videos Rented by a Customer\n";
-   	 		cout  << "\t[5] Go Back to Main Menu\n";
-   	 		cout  << "Enter Your Choice: ";
-		}
-	
-	void saveToFile(const string& filename) {
-            ofstream outFile(filename);
-            if (outFile.is_open()) {
-                for (size_t i = 0; i < CustomerId.size(); ++i) {
-                    outFile << CustomerId[i] << "\n"
-                            << CustomerName[i] << "\n"
-                            << Address[i] << "\n"<< endl;
-                }
-                outFile.close();
-            } else {
-                cout << "Unable to open file for writing." << endl;
-            }
-        }
-        // Function to load data from file
-    void loadFromFile(const string& filename) {
-        ifstream inFile(filename);
-            if (inFile.is_open()) {
-                int id;
-                string name, addres;
-                
-                while (inFile >> id) {
-                    inFile.ignore(); // Ignore newline after id
-                    getline(inFile, name);
-                    getline(inFile, addres);
-                    
-                    CustomerId.push_back(id);
-                    CustomerName.push_back(name);
-                    Address.push_back(addres);
-                }
-                inFile.close();
-            } else {
-                cout << "Unable to open file for reading." << endl;
-            }
-    }
-};
-
 		int main(){
 			Book library;
 			Customer customer;
+			CustomerRent rent;
 		
 			library.loadFromFile("library.txt");
 			customer.loadFromFile("customer.txt");
+			rent.loadFromFile("rentedbooks.txt");
 			
 			int choice, choice2;
 			char answer = 'N';
@@ -451,11 +536,11 @@ public:
 						break;
 						
 					case 2: 
-						customer.showCustomerDetails(library);
+						library.rentBook(customer, rent);
 						break;
 					
 					case 3:
-						library.returnBook();
+						library.returnBook(customer, rent);
 						break;
 					
 					case 4:
@@ -481,7 +566,7 @@ public:
 									break;
 							
 								case 2:
-									customer.showCustomerDetails(library);
+									customer.showCustomerDetails();
 									break;
 							
 								case 3:
@@ -489,7 +574,8 @@ public:
 									break;
 							
 								case 4:
-									
+									rent.displayRentedBooks();
+									break;
 									
 								case 5:
 									cout << "Go Back? (Y/N): ";
@@ -516,6 +602,7 @@ public:
 			
 			library.saveToFile("library.txt");
 			customer.saveToFile("customer.txt");
+			rent.saveToFile("rentedbooks.txt");
 			
 			cout << "Saving Data...\n";
 			cout << "Exiting Program...";
