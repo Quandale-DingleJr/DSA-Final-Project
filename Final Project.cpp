@@ -24,10 +24,12 @@ public:
 				id = CustomerId.back();
 			}
 		}
-
+		
+	//function to add customer
 	void addNewCustomer() {
 		string name, addres;
 		
+		//clear screen
 		system ("cls");
 		cout << "Adding Customer\n";
 		
@@ -43,10 +45,10 @@ public:
 		getline(cin, addres);
 		Address.push_back(addres);
 		
-		cout << "\nCustomer added successfully." << endl;
+		cout << "Customer added successfully." << endl << endl;
 	}
 	
-	
+	//function to display the customer details
 	void showCustomerDetails() {
     	bool found = false;
     	
@@ -77,6 +79,7 @@ public:
 		} 
 	}
 
+	//function to display all existing customer
     void displayAllCustomers(){
         	system ("cls");
         	cout << "List of Customers:\n";
@@ -94,7 +97,8 @@ public:
             cout << endl;
 			}
         }
-        
+    	
+    	//function to return a book
     	void submenu(){
 			cout  << "[7] Customer Maintenance\n";
    	 		cout  << "\t[1] Add New Customer\n";
@@ -105,6 +109,7 @@ public:
    	 		cout  << "Enter Your Choice: ";
 		}
 	
+	//function to save data to a text file
 	void saveToFile(const string& filename) {
             ofstream outFile(filename);
             if (outFile.is_open()) {
@@ -149,31 +154,29 @@ class CustomerRent: public Customer{
 	public:
 	vector<vector<int>> rentedbooks;
 
-    CustomerRent() {
+    CustomerRent() { //constructor
     	loadFromFile("rentedbooks.txt");
-        rentedbooks.resize(100);  // Adjust the size as needed
+        
     }
 
-    void rentBook(int cID, int bookID) {
-        if (cID < rentedbooks.size()) {
+    void rentBook(int cID, int bookID) { //places bookID into the rentedbooks of a CustomerID
             rentedbooks[cID].push_back(bookID);
-        }
     }
 
-    void displayRentedBooks() {
+    void displayRentedBooks() { // Displays rented books of a customer ID
         int cID;
         cout << "\nEnter Customer ID: ";
         cin >> cID;
-
-        if (cID < rentedbooks.size()) {
+        
+        if (rentedbooks[cID].empty()){
+            cout << "Customer ID has no rented books." << endl << endl;
+        }else{
             cout << "Books rented:" << endl;
-            for (int bookID : rentedbooks[cID]) {
-                cout << bookID << ", ";
-            }
+            for (int i = 0; i < rentedbooks[cID].size();i++){
+				cout<< rentedbooks[cID][i]<<",";            	
+			}
             cout << endl << endl;
-        } else {
-            cout << "Customer ID not found." << endl;
-        }
+        } 
     }
     //function to save data to a text file
 		void saveToFile(const string& filename) {
@@ -332,11 +335,11 @@ class Book{
             if(bookID.empty()){
             	cout << "Library is Empty.\n";
 			}
-			else{
-			while (!rent.rentedbooks[cID].empty())
+			else  if (!rent.rentedbooks[cID].empty()){
+			while (!rent.rentedbooks[cID].empty()) //Checks if all books has been returned
 			{
-				bID=rent.rentedbooks[cID].back();
-				rent.rentedbooks[cID].pop_back();
+				bID=rent.rentedbooks[cID].back(); 
+				rent.rentedbooks[cID].pop_back(); //removes the bookID from the rented books of a customer
 				bool found = false;
 				for(int i = 0; i < bookID.size(); i++){
                 	if(bID == bookID[i]){
@@ -355,6 +358,8 @@ class Book{
                 	cout << "Book ID not found.\n";
             	}
         	}
+			}else{
+				cout<<"No Books to return.\n";
 			}
 			cout << endl;
 		}
@@ -398,9 +403,9 @@ class Book{
         		cout << "Library is Empty.\n\n";
 			}
 			else{
-				cout << "ID\tTitle\t\t\tAuthor\t\tGenre\t\tCopies\n";
+				cout << "ID| Title | Author | Genre | Copies\n";
             	for(int i = 0; i < bookID.size(); i++){
-                	cout << bookID[i] << "\t" << bookTitle[i] << "\t\t" << author[i] << "\t" << genre[i] << "\t\t" << nofCopies[i] << endl;
+                	cout << bookID[i] << " | " << bookTitle[i] << " | " << author[i] << " | " << genre[i] << " | " << nofCopies[i] << endl;
             }
             cout << endl;
 			}
